@@ -4,6 +4,10 @@
    <head>
       <style>
 
+         *{
+             font-size: 1.02em;
+         }
+
          table{
              border: black 1px solid;
              width: 100%;
@@ -91,8 +95,8 @@
          <table>
             <thead>
                <tr>
-                  <th colspan="1">
-                     Country
+                  <th colspan="1" style="">
+                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </th>
                   <th colspan="24">
                      Times
@@ -102,7 +106,9 @@
             <tbody>
                <tr id="uk_time-row">
                </tr>
-               <tr id="pointer-row">
+               <tr id="we-pointer-row">
+               </tr>
+               <tr id="ww-pointer-row">
                </tr>
                <tr id="nz_time-row">
                </tr>
@@ -128,7 +134,8 @@
          {
 				setUKTimeData()
             setNZTimeData();
-				setPointer( 'Europe/London', 'Pacific/Auckland' );
+				setPointer( 'ww', 'Europe/London', 'Pacific/Auckland' );
+				setPointer( 'we', 'Europe/London', 'Pacific/Auckland' );
          }
 
 			function el( id )
@@ -142,7 +149,7 @@
            var H = +ts.substr(0, 2);
            var h = (H % 12) || 12;
            h = (h < 10)?("0"+h):h;  // leading 0 at the left for 1 digit hours
-           var ampm = H < 12 ? " AM" : " PM";
+           var ampm = H < 12 ? " AM 🌅" : " PM 🌞";
            ts = h + ts.substr(2, 3) + ampm;
            return ts;
          };
@@ -192,9 +199,9 @@
 				 return html;
          }
 
-			function setPointer( timezone1, timezone2 )
+			function setPointer( type, timezone1, timezone2 )
 			{
-            const pointer_tr = el( 'pointer-row' );
+            const pointer_tr = el( type + '-pointer-row' );
 
 				const now = new Date();
             let tz1 = new Date(  new Date( now.getFullYear(), now.getMonth(), now.getDate(), 0 ).toLocaleString('en-US', { timeZone: timezone1 }) );
@@ -202,12 +209,23 @@
 
 				let current_date = new Date().toLocaleString('en-US', { timeZone: timezone1 });
 
-				let html = '<td></td>';
+
+				let html = (type==='we') ? '<td>Weekend</td>' : '<td>Work day</td>';
 
 				for(let i = 0; i < 24; i++)
             {
-					let good_time = ( tz1.getHours() >= 9 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 12 && tz2.getHours() <= 23 );
-					let okay_time = ( tz1.getHours() >= 9 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 10 && tz2.getHours() <= 23 );
+					let good_time = false;
+					let okay_time = false;
+					if( type === 'we' )
+					{//weekend
+                  okay_time = ( tz1.getHours() >= 8 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 10 && tz2.getHours() <= 23 );
+                  good_time = ( tz1.getHours() >= 8 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 12 && tz2.getHours() <= 23 );
+               }
+					else
+					{//work week
+						okay_time = ( tz1.getHours() >= 11 && tz1.getHours() <= 23 ) && ( (tz2.getHours() >= 0 && tz2.getHours() <= 1) || (tz2.getHours() >= 10 && tz2.getHours() <= 23) );
+                  good_time = ( tz1.getHours() >= 12 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 12 && tz2.getHours() <= 23 );
+               }
 
 					html += `
                   <td class="${ okay_time ? good_time ? 'good_time' : 'okay_time' : '' } ${ new Date(current_date).getHours() === tz1.getHours() ? 'current_time' : ''}">${ new Date(current_date).getHours() === tz1.getHours() ? '' : ''}</td>
