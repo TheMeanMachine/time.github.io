@@ -28,7 +28,11 @@
          }
 
          .good_time{
-             background: #6da893;
+             background: #3fd241;
+         }
+
+         .okay_time{
+             background: #ffb250;
          }
 
          .current_time::before{
@@ -66,11 +70,19 @@
                   </td>
                </tr>
                <tr>
-                  <td style="background:  #6da893">
+                  <td class="good_time">
 
                   </td>
                   <td>
                      Good Time
+                  </td>
+               </tr>
+                <tr>
+                  <td class="okay_time">
+
+                  </td>
+                  <td>
+                     Okay Time
                   </td>
                </tr>
             </tbody>
@@ -194,10 +206,11 @@
 
 				for(let i = 0; i < 24; i++)
             {
-					let good_time = ( tz1.getHours() >= 9 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 10 && tz2.getHours() <= 23 );
+					let good_time = ( tz1.getHours() >= 9 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 12 && tz2.getHours() <= 23 );
+					let okay_time = ( tz1.getHours() >= 9 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 10 && tz2.getHours() <= 23 );
 
 					html += `
-                  <td class="${ good_time ? 'good_time' : ''} ${ new Date(current_date).getHours() === tz1.getHours() ? 'current_time' : ''}">${ new Date(current_date).getHours() === tz1.getHours() ? '' : ''}</td>
+                  <td class="${ okay_time ? good_time ? 'good_time' : 'okay_time' : '' } ${ new Date(current_date).getHours() === tz1.getHours() ? 'current_time' : ''}">${ new Date(current_date).getHours() === tz1.getHours() ? '' : ''}</td>
                `;
 
 					tz1.setHours( tz1.getHours() + 1);
