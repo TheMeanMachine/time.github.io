@@ -1,0 +1,218 @@
+<html>
+   <head>
+      <style>
+
+         table{
+             border: black 1px solid;
+             width: 100%;
+         }
+
+         th{
+            padding: 8px 16px;
+              text-align: left;
+              background-color: #808080;
+              color: white;
+         }
+
+         td{
+             border: 1px solid #797979;
+            padding: 8px;
+             position: relative;
+         }
+
+         .start_highlight{
+             background: black;
+             color: white;
+         }
+
+         .good_time{
+             background: #6da893;
+         }
+
+         .current_time::before{
+             position: absolute;
+             top:0;
+             bottom: 0;
+             left: 50%;
+             right: 50%;
+             content: '';
+             height: 100%;
+             width: 10px;
+             background: black;
+         }
+      </style>
+   </head>
+   <body>
+      <div>
+
+         <table style="width: 400px">
+            <thead>
+               <tr>
+                  <th colspan="2">
+                     Key
+                  </th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr>
+                  <td style="background: black">
+
+                  </td>
+                  <td>
+                     Current Time
+                  </td>
+               </tr>
+               <tr>
+                  <td style="background:  #6da893">
+
+                  </td>
+                  <td>
+                     Good Time
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+
+         <table>
+            <thead>
+               <tr>
+                  <th colspan="1">
+                     Country
+                  </th>
+                  <th colspan="24">
+                     Times
+                  </th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr id="uk_time-row">
+               </tr>
+               <tr id="pointer-row">
+               </tr>
+               <tr id="nz_time-row">
+               </tr>
+            </tbody>
+         </table>
+
+         <div>
+            <div>
+
+            </div>
+            <div>
+
+            </div>
+            <div>
+
+            </div>
+         </div>
+      </div>
+   </body>
+   <footer>
+      <script>
+         function init()
+         {
+				setUKTimeData()
+            setNZTimeData();
+				setPointer( 'Europe/London', 'Pacific/Auckland' );
+         }
+
+			function el( id )
+			{
+				return document.getElementById( id );
+         }
+
+			//https://stackoverflow.com/questions/13898423/javascript-convert-24-hour-time-of-day-string-to-12-hour-time-with-am-pm-and-no
+			function convertTo12HourTime(time24) {
+           var ts = time24;
+           var H = +ts.substr(0, 2);
+           var h = (H % 12) || 12;
+           h = (h < 10)?("0"+h):h;  // leading 0 at the left for 1 digit hours
+           var ampm = H < 12 ? " AM" : " PM";
+           ts = h + ts.substr(2, 3) + ampm;
+           return ts;
+         };
+
+			function setUKTimeData()
+			{
+				const uk_tr = el( 'uk_time-row' );
+
+				let html = `
+               <td>
+                  UK (you!)
+               </td>`;
+
+				uk_tr.innerHTML = html + setTimeData( 'Europe/London' );
+         }
+
+			function setNZTimeData( )
+			{
+				const nz_tr = el( 'nz_time-row' );
+
+				let html = `
+               <td>
+                  NZ (me!)
+               </td>`;
+
+				nz_tr.innerHTML = html + setTimeData( 'Pacific/Auckland' );
+         }
+
+			function setTimeData( timezone )
+			{
+
+				const now = new Date();
+            let start_hour = new Date(  new Date( now.getFullYear(), now.getMonth(), now.getDate(), 0 ).toLocaleString('en-US', { timeZone: timezone }) );
+
+				let current_date = new Date().toLocaleString('en-US', { timeZone: timezone });
+
+				let html = '';
+            for(let i = 0; i < 24; i++)
+            {
+               html += `
+                  <td ${ new Date(current_date).getHours() === start_hour.getHours() ? 'class="start_highlight"' : ''}>${ convertTo12HourTime(  start_hour.getHours().toString().padStart( 2, '0')  + ':00' )}</td>
+               `;
+
+					start_hour.setHours( start_hour.getHours() + 1);
+            }
+
+				 return html;
+         }
+
+			function setPointer( timezone1, timezone2 )
+			{
+            const pointer_tr = el( 'pointer-row' );
+
+				const now = new Date();
+            let tz1 = new Date(  new Date( now.getFullYear(), now.getMonth(), now.getDate(), 0 ).toLocaleString('en-US', { timeZone: timezone1 }) );
+				let tz2 = new Date(  new Date( now.getFullYear(), now.getMonth(), now.getDate(), 0 ).toLocaleString('en-US', { timeZone: timezone2 }) );
+
+				let current_date = new Date().toLocaleString('en-US', { timeZone: timezone1 });
+
+				let html = '<td></td>';
+
+				for(let i = 0; i < 24; i++)
+            {
+					let good_time = ( tz1.getHours() >= 9 && tz1.getHours() <= 23 ) && ( tz2.getHours() >= 10 && tz2.getHours() <= 23 );
+
+					html += `
+                  <td class="${ good_time ? 'good_time' : ''} ${ new Date(current_date).getHours() === tz1.getHours() ? 'current_time' : ''}">${ new Date(current_date).getHours() === tz1.getHours() ? '' : ''}</td>
+               `;
+
+					tz1.setHours( tz1.getHours() + 1);
+					tz2.setHours( tz2.getHours() + 1);
+
+
+            }
+
+				pointer_tr.innerHTML = html;
+         }
+
+
+
+			window.addEventListener( 'load', init )
+
+      </script>
+      <noscript>
+         You must enable JS
+      </noscript>
+   </footer>
+</html>
